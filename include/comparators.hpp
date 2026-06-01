@@ -39,6 +39,13 @@ struct LessByRating {
     bool operator()(double lhs, const Book &rhs) const { return lhs < rhs.rating; }
 };
 
+struct LessByPopularity {
+    using is_transparent = void;
+    bool operator()(const Book &lhs, const Book &rhs) const {
+        return lhs.rating * lhs.read_count < rhs.rating * rhs.read_count;
+    }
+};
+
 struct LessByReadCount {
     using is_transparent = void;
     bool operator()(const Book &lhs, const Book &rhs) const { return lhs.read_count < rhs.read_count; }

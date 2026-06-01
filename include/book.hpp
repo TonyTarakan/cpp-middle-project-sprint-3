@@ -52,9 +52,9 @@ struct Book {
                    int read_count)
         : title{title}, author{author}, year{year}, genre{genre}, rating{rating}, read_count{read_count} {}
     Book(const Book &other) = default;
-    Book(Book &&other) = delete;
-    Book &operator=(const Book &other) = delete;
-    Book &operator=(Book &&other) = delete;
+    Book(Book &&other) = default;
+    Book &operator=(const Book &other) = default;
+    Book &operator=(Book &&other) = default;
     ~Book() = default;
 };
 
