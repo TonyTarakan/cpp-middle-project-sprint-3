@@ -12,6 +12,17 @@ enum class Genre { Fiction, NonFiction, SciFi, Biography, Mystery, Unknown };
 
 constexpr Genre GenreFromString(std::string_view s) {
     // Ваш код здесь
+    if (s == "Fiction")
+        return Genre::Fiction;
+    if (s == "Mystery")
+        return Genre::Mystery;
+    if (s == "NonFiction")
+        return Genre::NonFiction;
+    if (s == "SciFi")
+        return Genre::SciFi;
+    if (s == "Biography")
+        return Genre::Biography;
+
     return Genre::Unknown;
 }
 
@@ -25,11 +36,22 @@ struct Book {
     double rating;
     int read_count;
 
-    // Ваш код для конструкторов здесь
+    auto operator<=>(const Book &) const = default;
+
+    // Constructors and destructor
+    constexpr explicit Book(std::string_view genre) : genre{GenreFromString(genre)} {}
+    constexpr explicit Book(Genre genre) : genre{genre} {}
+    Book(const Book &other) = delete;
+    Book(Book &&other) = delete;
+    Book &operator=(const Book &other) = delete;
+    Book &operator=(Book &&other) = delete;
+    ~Book() = default;
 };
+
 }  // namespace bookdb
 
 namespace std {
+
 template <>
 struct formatter<bookdb::Genre, char> {
     template <typename FormatContext>
@@ -57,6 +79,17 @@ struct formatter<bookdb::Genre, char> {
     }
 };
 
-// Ваш код для std::formatter<Book> здесь
+// std::formatter<Book>
+template <>
+struct formatter<bookdb::Book, char> {
+    template <typename FormatContext>
+    auto format(const bookdb::Book &book, FormatContext &fc) const {
+        return format_to(fc.out(), "{} by {} ({}) [{}]", book.title, book.author, book.year, book.genre);
+    }
+
+    constexpr auto parse(format_parse_context &ctx) {
+        return ctx.begin();  // Просто игнорируем пользовательский формат
+    }
+};
 
 }  // namespace std
