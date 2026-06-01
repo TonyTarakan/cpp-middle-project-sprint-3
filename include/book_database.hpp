@@ -3,6 +3,7 @@
 #include <print>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include <vector>
 
 #include "book.hpp"
@@ -25,20 +26,21 @@ public:
 
     // Ваш код здесь
 
-    using AuthorContainer = std::vector<std::string>;  // TODO: make it depend on BookContainer
+    using AuthorContainer = std::unordered_set<std::string>;  // TODO: make it depend on BookContainer
 
     BookDatabase() = default;
-
-    void Clear() {
-        books_.clear();
-        authors_.clear();
-    }
 
     BookContainer &GetBooks() { return books_; }
     const BookContainer &GetBooks() const { return books_; }
 
     AuthorContainer &GetAuthors() { return authors_; }
     const AuthorContainer &GetAuthors() const { return authors_; }
+
+    void EmplaceBack(std::string_view title, std::string_view author, int year, Genre genre, double rating,
+                     int read_count) {
+        books_.emplace_back(title, author, year, genre, rating, read_count);
+        authors_.emplace(author);
+    }
 
     // Standard container interface methods
 
@@ -51,6 +53,10 @@ public:
 
     size_type size() const { return books_.size(); }
     bool empty() const { return books_.empty(); }
+    void clear() {
+        books_.clear();
+        authors_.clear();
+    }
 
 private:
     BookContainer books_;
