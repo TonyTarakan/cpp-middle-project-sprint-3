@@ -41,7 +41,7 @@ struct Book {
     // Constructors and destructor
     constexpr explicit Book(std::string_view genre) : genre{GenreFromString(genre)} {}
     constexpr explicit Book(Genre genre) : genre{genre} {}
-    Book(const Book &other) = delete;
+    Book(const Book &other) = default;
     Book(Book &&other) = delete;
     Book &operator=(const Book &other) = delete;
     Book &operator=(Book &&other) = delete;

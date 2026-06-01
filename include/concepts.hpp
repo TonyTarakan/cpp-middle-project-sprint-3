@@ -24,7 +24,6 @@ concept BookContainerLike = requires(T c) {
     { c.end() } -> BookSentinel<typename T::iterator>;
     { c.size() } -> std::convertible_to<size_t>;
     { c.empty() } -> std::convertible_to<bool>;
-    { c.clear() };
 };
 
 template <typename P>
