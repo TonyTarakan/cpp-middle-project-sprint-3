@@ -9,7 +9,7 @@ namespace bookdb {
 
 template <typename T>
 concept BookIterator = requires(T it) {
-    { *it } -> std::convertible_to<Book>;
+    { *it } -> std::convertible_to<const Book &>;
     { ++it } -> std::same_as<T &>;
     { it == it } -> std::convertible_to<bool>;
     { it != it } -> std::convertible_to<bool>;

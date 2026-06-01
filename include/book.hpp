@@ -6,6 +6,13 @@
 
 namespace bookdb {
 
+/*
+TODO: strong types
+struct Author { std::string_view value; };
+struct Title  { std::string value; };
+...
+*/
+
 enum class Genre { Fiction, NonFiction, SciFi, Biography, Mystery, Unknown };
 
 // Ваш код для constexpr преобразования строк в enum::Genre и наоборот здесь
@@ -42,7 +49,8 @@ struct Book {
     constexpr explicit Book(std::string_view genre) : genre{GenreFromString(genre)} {}
     constexpr explicit Book(Genre genre) : genre{genre} {}
     constexpr Book(std::string_view title, std::string_view author, int year, Genre genre, double rating,
-                   int read_count) {}
+                   int read_count)
+        : title{title}, author{author}, year{year}, genre{genre}, rating{rating}, read_count{read_count} {}
     Book(const Book &other) = default;
     Book(Book &&other) = delete;
     Book &operator=(const Book &other) = delete;
