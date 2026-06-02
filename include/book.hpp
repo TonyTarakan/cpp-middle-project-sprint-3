@@ -15,8 +15,7 @@ struct Title  { std::string value; };
 
 enum class Genre { Fiction, NonFiction, SciFi, Biography, Mystery, Unknown };
 
-// Ваш код для constexpr преобразования строк в enum::Genre и наоборот здесь
-
+[[nodiscard]]
 constexpr Genre GenreFromString(std::string_view s) {
     // Ваш код здесь
     if (s == "Fiction")
@@ -46,8 +45,9 @@ struct Book {
     auto operator<=>(const Book &) const = default;
 
     // Constructors and destructor
-    constexpr explicit Book(std::string_view genre) : genre{GenreFromString(genre)} {}
-    constexpr explicit Book(Genre genre) : genre{genre} {}
+    constexpr explicit Book(std::string_view genre)
+        : author{}, title{}, year{}, genre{GenreFromString(genre)}, rating{}, read_count{} {}
+    constexpr explicit Book(Genre genre) : author{}, title{}, year{}, genre{genre}, rating{}, read_count{} {}
     constexpr Book(std::string_view title, std::string_view author, int year, Genre genre, double rating,
                    int read_count)
         : title{title}, author{author}, year{year}, genre{genre}, rating{rating}, read_count{read_count} {}

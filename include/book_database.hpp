@@ -24,11 +24,15 @@ public:
     using size_type = typename BookContainer::size_type;
     using difference_type = typename BookContainer::difference_type;
 
-    // Ваш код здесь
-
-    using AuthorContainer = std::unordered_set<std::string>;  // TODO: make it depend on BookContainer
+    // TODO: make it depend on BookContainer
+    using AuthorContainer = std::unordered_set<std::string, TransparentStringHash, TransparentStringEqual>;
 
     BookDatabase() = default;
+    BookDatabase(std::initializer_list<Book> books) {
+        for (const auto &b : books) {
+            PushBack(b);
+        }
+    }
 
     BookContainer &GetBooks() { return books_; }
     const BookContainer &GetBooks() const { return books_; }
@@ -38,8 +42,14 @@ public:
 
     void EmplaceBack(std::string_view title, std::string_view author, int year, Genre genre, double rating,
                      int read_count) {
-        books_.emplace_back(title, author, year, genre, rating, read_count);
-        authors_.emplace(author);
+        auto [author_it, inserted] = authors_.emplace(author);
+        books_.emplace_back(title, std::string_view{*author_it}, year, genre, rating, read_count);
+    }
+
+    void PushBack(const Book &book) {
+        auto [author_it, inserted] = authors_.emplace(book.author);
+        books_.push_back(
+            Book{book.title, std::string_view{*author_it}, book.year, book.genre, book.rating, book.read_count});
     }
 
     // Standard container interface methods

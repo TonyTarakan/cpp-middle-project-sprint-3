@@ -27,6 +27,15 @@ struct std::formatter<std::flat_map<K, V, Comp, KC, VC>> {
 
 namespace bookdb {
 
+template <BookContainerLike T>
+auto buildAuthorHistogram(const BookDatabase<T> &cont) {
+    std::unordered_map<std::string_view, size_t> histogram;
+    for (const auto &book : cont.GetBooks()) {
+        ++histogram[std::string{book.author}];
+    }
+    return histogram;
+}
+
 template <BookContainerLike T, typename Comparator = TransparentStringLess>
 auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {}) {
     std::flat_map<std::string, size_t, Comparator> histogram;
@@ -37,7 +46,8 @@ auto buildAuthorHistogramFlat(const BookDatabase<T> &cont, Comparator comp = {})
 }
 
 // Средний рейтинг книг по жанрам, используя один или несколько из доступных flat-контейнеров
-auto calculateGenreRatings(const auto &begin, const auto &end) {
+template <BookIterator Iter>
+auto calculateGenreRatings(Iter begin, Iter end) {
     std::flat_map<Genre, double> ratings;
     std::flat_map<Genre, int> counts;
     for (auto book = begin; book != end; ++book) {
@@ -50,13 +60,12 @@ auto calculateGenreRatings(const auto &begin, const auto &end) {
     return ratings;
 }
 
-template <BookContainerLike T>
-double calculateAverageRating(const BookDatabase<T> &cont) {
-    if (cont.empty())
+inline double calculateAverageRating(std::span<const Book> books) {
+    if (books.empty())
         return 0.0;
     double sum =
-        std::accumulate(cont.begin(), cont.end(), 0.0, [](double acc, const Book &book) { return acc + book.rating; });
-    return sum / cont.size();
+        std::accumulate(books.begin(), books.end(), 0.0, [](double acc, const Book &b) { return acc + b.rating; });
+    return sum / books.size();
 }
 
 template <BookContainerLike T>
@@ -71,6 +80,7 @@ auto sampleRandomBooks(const BookDatabase<T> &db, size_t n) {
 // Это единственная функция, которой разрешено изменять переданный контейнер.
 template <BookContainerLike T, BookComparator Cmp>
 auto getTopNBy(BookDatabase<T> &db, size_t n, Cmp cmp) {
+    n = std::min(n, db.size());
     std::partial_sort(db.begin(), db.begin() + n, db.end(), cmp);
     std::vector<std::reference_wrapper<const Book>> result;
     result.reserve(n);

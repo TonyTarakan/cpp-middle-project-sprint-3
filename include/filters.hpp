@@ -16,6 +16,10 @@ inline auto RatingAbove(double rating) {
     return [rating](const Book &b) { return b.rating > rating; };
 }
 
+inline auto GenreIs(Genre genre) {
+    return [genre](const Book &b) { return b.genre == genre; };
+}
+
 template <BookPredicate... Preds>
 auto all_of(Preds... preds) {
     return [=](const Book &b) { return (preds(b) && ...); };
