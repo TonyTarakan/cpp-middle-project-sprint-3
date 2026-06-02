@@ -13,6 +13,7 @@ endif()
 
 # Ищем необходимые библиотеки
 find_package(GTest REQUIRED)
+find_package(benchmark REQUIRED)
 
 file(GLOB HEADER_FILES "${CMAKE_SOURCE_DIR}/include/*.hpp")
 
@@ -41,3 +42,12 @@ target_include_directories(unit_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/includ
 # Включаем тестирование
 enable_testing()
 add_test(NAME Tests COMMAND unit_tests)
+
+#
+# Бенчмарки
+#
+file(GLOB BENCH_SRC_FILES "${CMAKE_SOURCE_DIR}/benchmarks/*.cpp")
+add_executable(benchmarks "${BENCH_SRC_FILES}")
+target_link_libraries(benchmarks PRIVATE benchmark::benchmark)
+target_include_directories(benchmarks PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
