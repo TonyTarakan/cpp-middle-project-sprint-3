@@ -8,11 +8,11 @@
 
 namespace bookdb {
 
-auto YearBetween(int from, int to) {
+inline auto YearBetween(int from, int to) {
     return [from, to](const Book &b) { return b.year >= from && b.year <= to; };
 }
 
-auto RatingAbove(double rating) {
+inline auto RatingAbove(double rating) {
     return [rating](const Book &b) { return b.rating > rating; };
 }
 
