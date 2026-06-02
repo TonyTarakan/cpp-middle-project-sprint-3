@@ -8,6 +8,7 @@
 #include <string_view>
 
 #include "book_database.hpp"
+#include "comparators.hpp"
 
 #include <print>
 
@@ -56,6 +57,27 @@ double calculateAverageRating(const BookDatabase<T> &cont) {
     double sum =
         std::accumulate(cont.begin(), cont.end(), 0.0, [](double acc, const Book &book) { return acc + book.rating; });
     return sum / cont.size();
+}
+
+template <BookContainerLike T>
+auto sampleRandomBooks(const BookDatabase<T> &db, size_t n) {
+    std::vector<std::reference_wrapper<const Book>> result;
+    std::sample(db.begin(), db.end(), std::back_inserter(result), n, std::mt19937{std::random_device{}()});
+    return result;
+}
+
+// Функция getTopNBy должна выбирать из библиотеки указанное количество книг c наивысшим рейтингом и
+// возвращать их в виде std::vector<std::reference_wrapper<const Book>>.
+// Это единственная функция, которой разрешено изменять переданный контейнер.
+template <BookContainerLike T, BookComparator Cmp>
+auto getTopNBy(BookDatabase<T> &db, size_t n, Cmp cmp) {
+    std::partial_sort(db.begin(), db.begin() + n, db.end(), cmp);
+    std::vector<std::reference_wrapper<const Book>> result;
+    result.reserve(n);
+    for (auto it = db.begin(); it != db.begin() + n; ++it) {
+        result.emplace_back(std::cref(*it));
+    }
+    return result;
 }
 
 }  // namespace bookdb
