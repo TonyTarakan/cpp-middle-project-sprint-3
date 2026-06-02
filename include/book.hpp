@@ -6,12 +6,29 @@
 
 namespace bookdb {
 
+/*
+TODO: strong types
+struct Author { std::string_view value; };
+struct Title  { std::string value; };
+...
+*/
+
 enum class Genre { Fiction, NonFiction, SciFi, Biography, Mystery, Unknown };
 
-// Ваш код для constexpr преобразования строк в enum::Genre и наоборот здесь
-
+[[nodiscard]]
 constexpr Genre GenreFromString(std::string_view s) {
     // Ваш код здесь
+    if (s == "Fiction")
+        return Genre::Fiction;
+    if (s == "Mystery")
+        return Genre::Mystery;
+    if (s == "NonFiction")
+        return Genre::NonFiction;
+    if (s == "SciFi")
+        return Genre::SciFi;
+    if (s == "Biography")
+        return Genre::Biography;
+
     return Genre::Unknown;
 }
 
@@ -25,11 +42,26 @@ struct Book {
     double rating;
     int read_count;
 
-    // Ваш код для конструкторов здесь
+    auto operator<=>(const Book &) const = default;
+
+    // Constructors and destructor
+    constexpr explicit Book(std::string_view genre)
+        : author{}, title{}, year{}, genre{GenreFromString(genre)}, rating{}, read_count{} {}
+    constexpr explicit Book(Genre genre) : author{}, title{}, year{}, genre{genre}, rating{}, read_count{} {}
+    constexpr Book(std::string_view title, std::string_view author, int year, Genre genre, double rating,
+                   int read_count)
+        : title{title}, author{author}, year{year}, genre{genre}, rating{rating}, read_count{read_count} {}
+    Book(const Book &other) = default;
+    Book(Book &&other) = default;
+    Book &operator=(const Book &other) = default;
+    Book &operator=(Book &&other) = default;
+    ~Book() = default;
 };
+
 }  // namespace bookdb
 
 namespace std {
+
 template <>
 struct formatter<bookdb::Genre, char> {
     template <typename FormatContext>
@@ -57,6 +89,17 @@ struct formatter<bookdb::Genre, char> {
     }
 };
 
-// Ваш код для std::formatter<Book> здесь
+// std::formatter<Book>
+template <>
+struct formatter<bookdb::Book, char> {
+    template <typename FormatContext>
+    auto format(const bookdb::Book &book, FormatContext &fc) const {
+        return format_to(fc.out(), "{} by {} ({}) [{}]", book.title, book.author, book.year, book.genre);
+    }
+
+    constexpr auto parse(format_parse_context &ctx) {
+        return ctx.begin();  // Просто игнорируем пользовательский формат
+    }
+};
 
 }  // namespace std
